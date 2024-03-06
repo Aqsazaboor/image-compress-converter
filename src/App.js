@@ -82,7 +82,7 @@ import LogoUpload from "./LogoUpload";
 const styles = {
   appContainer: {
     textAlign: "center", // Center-align the content
-    backgroundColor: "black",
+    backgroundColor: "skyblue",
     color: "white",
     minHeight: "100vh", // Ensure the app fills the entire viewport
     display: "flex",
