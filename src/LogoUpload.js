@@ -69,7 +69,7 @@ function LogoUpload() {
             case "black":
               element.style.fill = "#000000";
               break;
-            case "invert":
+              // case "invert":
               break;
             default:
               element.style.fill = selectedColor;
@@ -200,8 +200,8 @@ function LogoUpload() {
       />
       <select onChange={handleColorVersionChange} style={styles.input}>
         <option value="color">Color</option>
-        <option value="black">Black</option>
-        <option value="invert">Invert</option>
+        {/* <option value="black">Black</option>
+        <option value="invert">Invert</option> */}
       </select>
       <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {logos.map((logo, index) => (
