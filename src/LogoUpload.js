@@ -76,42 +76,18 @@ function LogoUpload() {
   };
 
   const convertToPNG = (svgUrl, filename) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-
-    img.onload = function () {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      canvas.toBlob((blob) => {
-        saveAs(blob, filename + ".png");
-      });
-    };
-
-    img.src = svgUrl;
+    convertToImage(svgUrl, filename, "image/png");
   };
 
   const convertToJPG = (svgUrl, filename) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-
-    img.onload = function () {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      canvas.toBlob((blob) => {
-        saveAs(blob, filename + ".jpg");
-      }, "image/jpeg");
-    };
-
-    img.src = svgUrl;
+    convertToImage(svgUrl, filename, "image/jpeg");
   };
 
   const convertToWebP = (svgUrl, filename) => {
+    convertToImage(svgUrl, filename, "image/webp");
+  };
+
+  const convertToImage = (svgUrl, filename, mimeType) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
@@ -122,51 +98,11 @@ function LogoUpload() {
       ctx.drawImage(img, 0, 0);
 
       canvas.toBlob((blob) => {
-        saveAs(blob, filename + ".webp");
-      }, "image/webp");
+        saveAs(blob, filename);
+      }, mimeType);
     };
 
     img.src = svgUrl;
-  };
-
-  const convertToEPS = (svgUrl, filename) => {
-    // Implement EPS conversion here
-    // You can use a server-side library or service for this purpose
-    // Example:
-    // fetch("/convert-to-eps", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ svgUrl }),
-    // })
-    //   .then((response) => response.blob())
-    //   .then((blob) => {
-    //     saveAs(blob, `${filename}.eps`);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error converting SVG to EPS:", error);
-    //   });
-  };
-
-  const convertToAI = (svgUrl, filename) => {
-    // Implement AI conversion here
-    // You can use a server-side library or service for this purpose
-    // Example:
-    // fetch("/convert-to-ai", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ svgUrl }),
-    // })
-    //   .then((response) => response.blob())
-    //   .then((blob) => {
-    //     saveAs(blob, `${filename}.ai`);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error converting SVG to AI:", error);
-    //   });
   };
 
   const downloadZip = () => {
@@ -177,11 +113,10 @@ function LogoUpload() {
       const filename = `logo_${index}`;
 
       if (extension === "svg") {
-        convertToPNG(logo.url, filename);
-        convertToJPG(logo.url, filename);
-        convertToWebP(logo.url, filename);
-        convertToEPS(logo.url, filename);
-        convertToAI(logo.url, filename);
+        convertToPNG(logo.url, `${filename}.png`);
+        convertToJPG(logo.url, `${filename}.jpg`);
+        convertToWebP(logo.url, `${filename}.webp`);
+        // You can add more image formats here if needed
       } else {
         zip.file(logo.name, logo.file);
       }
@@ -197,6 +132,14 @@ function LogoUpload() {
     elements.forEach((element) => {
       element.style.fill = selectedColor;
       element.style.stroke = selectedColor;
+    });
+  };
+
+  const setFillColorWithAttributes = (svgDoc, selector) => {
+    const elements = svgDoc.querySelectorAll(selector);
+    elements.forEach((element) => {
+      element.setAttribute("fill", selectedColor);
+      element.setAttribute("stroke", selectedColor);
     });
   };
 
@@ -232,6 +175,9 @@ function LogoUpload() {
                 setFillColor(svgDoc, "path");
                 setFillColor(svgDoc, "polygon");
                 setFillColor(svgDoc, "rect");
+                setFillColorWithAttributes(svgDoc, "path");
+                setFillColorWithAttributes(svgDoc, "polygon");
+                setFillColorWithAttributes(svgDoc, "rect");
               }}
             >
               Your browser does not support SVGs
