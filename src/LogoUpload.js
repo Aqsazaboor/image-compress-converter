@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+// import canvg from "canvg";
 
 const styles = {
   container: {
@@ -41,6 +42,7 @@ function LogoUpload() {
 
   const handleLogoChange = (event) => {
     const files = Array.from(event.target.files);
+    console.log(event.target.value);
     const uploadedLogos = files.map((file) => ({
       name: file.name,
       url: URL.createObjectURL(file),
@@ -73,15 +75,128 @@ function LogoUpload() {
     });
   };
 
+  const convertToPNG = (svgUrl, filename) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        saveAs(blob, filename + ".png");
+      });
+    };
+
+    img.src = svgUrl;
+  };
+
+  const convertToJPG = (svgUrl, filename) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        saveAs(blob, filename + ".jpg");
+      }, "image/jpeg");
+    };
+
+    img.src = svgUrl;
+  };
+
+  const convertToWebP = (svgUrl, filename) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        saveAs(blob, filename + ".webp");
+      }, "image/webp");
+    };
+
+    img.src = svgUrl;
+  };
+
+  const convertToEPS = (svgUrl, filename) => {
+    // Implement EPS conversion here
+    // You can use a server-side library or service for this purpose
+    // Example:
+    // fetch("/convert-to-eps", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ svgUrl }),
+    // })
+    //   .then((response) => response.blob())
+    //   .then((blob) => {
+    //     saveAs(blob, `${filename}.eps`);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error converting SVG to EPS:", error);
+    //   });
+  };
+
+  const convertToAI = (svgUrl, filename) => {
+    // Implement AI conversion here
+    // You can use a server-side library or service for this purpose
+    // Example:
+    // fetch("/convert-to-ai", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ svgUrl }),
+    // })
+    //   .then((response) => response.blob())
+    //   .then((blob) => {
+    //     saveAs(blob, `${filename}.ai`);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error converting SVG to AI:", error);
+    //   });
+  };
+
   const downloadZip = () => {
     const zip = new JSZip();
 
     logos.forEach((logo, index) => {
-      zip.file(logo.name, logo.file);
+      const extension = logo.name.split(".").pop().toLowerCase();
+      const filename = `logo_${index}`;
+
+      if (extension === "svg") {
+        convertToPNG(logo.url, filename);
+        convertToJPG(logo.url, filename);
+        convertToWebP(logo.url, filename);
+        convertToEPS(logo.url, filename);
+        convertToAI(logo.url, filename);
+      } else {
+        zip.file(logo.name, logo.file);
+      }
     });
 
     zip.generateAsync({ type: "blob" }).then((blob) => {
       saveAs(blob, "logos.zip");
+    });
+  };
+
+  const setFillColor = (svgDoc, selector) => {
+    const elements = svgDoc.querySelectorAll(selector);
+    elements.forEach((element) => {
+      element.style.fill = selectedColor;
+      element.style.stroke = selectedColor;
     });
   };
 
@@ -97,13 +212,30 @@ function LogoUpload() {
       <input
         type="color"
         value={selectedColor}
-        onChange={(e) => setSelectedColor(e.target.value)}
+        onChange={(e) => {
+          setSelectedColor(e.target.value);
+          console.log(e.target.value);
+        }}
         style={{ marginBottom: "10px" }}
       />
       <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {logos.map((logo, index) => (
           <div key={index} style={styles.logoContainer}>
             <h2>{logo.name}</h2>
+            <object
+              data={logo.url}
+              type="image/svg+xml"
+              style={{ ...styles.logoImage }}
+              onLoad={(event) => {
+                const svgDoc = event.target.contentDocument;
+                console.log(svgDoc);
+                setFillColor(svgDoc, "path");
+                setFillColor(svgDoc, "polygon");
+                setFillColor(svgDoc, "rect");
+              }}
+            >
+              Your browser does not support SVGs
+            </object>
             <img
               src={logo.url}
               alt={logo.name}
